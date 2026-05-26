@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    body { margin: 0; font-family: sans-serif; }
+
+    .section {
+      height: 100vh;         
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+    }
+
+    .section:nth-child(even) { background: #f5f5f5; }
+
+    svg { max-width: 100%; }
+  </style>
+</head>
+<body>
+
+  <div class="section" id="chart1">
+    <h2>Line Chart</h2>
+    <svg id="line-svg"></svg>
+  </div>
+
+  <div class="section" id="chart2">
+    <h2>Scatter Chart</h2>
+    <svg id="scatter-svg"></svg>
+  </div>
+
+  <div class="section" id="chart3">
+    <h2>Stream Chart</h2>
+    <svg id="stream-svg"></svg>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+  <script src = "scatterplot.js"></script>
+</body>
+</html>
