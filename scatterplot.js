@@ -1,7 +1,8 @@
-const truewidth = window.innerWidth;
-const trueheight = window.innerHeight;
-const width = truewidth * .7
-const height = trueheight -80
+const truewidth = 960;
+const trueheight = 600;
+const margins = {left : 50, bottom : 50, top: 20, right: 20}
+const width = truewidth - margins.left - margins.right;
+const height = trueheight - margins.bottom - margins.top
 console.log(width, height);
 const lowBoundary = 6;
 const highBoundary = 8;
@@ -17,7 +18,7 @@ d3.csv("./titles.csv", d3.autoType).then(function(data){
     .domain(xExtend)
     .range([0, width]);
     y = d3.scaleLinear()
-    .domain([0, 11])
+    .domain([0, 10])
     .range([height, 0]);
     let xAxis = (g, x) => g
     .attr("transform", `translate(0,${height})`)
@@ -31,7 +32,9 @@ d3.csv("./titles.csv", d3.autoType).then(function(data){
     const zoom = d3.zoom()
         .scaleExtent([0.5, 32])
         .on("zoom", zoomed);
-    const svg_original = d3.select("svg");
+    const svg_original = d3.select("#scatter-svg")
+    .attr("width", truewidth)
+    .attr("height", trueheight);
     const svg = svg_original.append("svg")
     const gDot = svg.append("g")
    
@@ -48,8 +51,8 @@ d3.csv("./titles.csv", d3.autoType).then(function(data){
     const gy = svg.append("g");
     svg_original.call(zoom).call(zoom.transform, d3.zoomIdentity);
 
-    function zoomed() {
-        let transform = d3.event.transform;
+    function zoomed({transform}) {
+        
         const zx = transform.rescaleX(x).interpolate(d3.interpolateRound);
         const zy = transform.rescaleY(y).interpolate(d3.interpolateRound);
         gDot.attr("transform", transform).attr("stroke-width", 5 / transform.k);
@@ -60,21 +63,26 @@ d3.csv("./titles.csv", d3.autoType).then(function(data){
         
     }
    
-    svg.attr("transform",`translate(30, 20)`)
+    svg.attr("transform",`translate(${margins.left}, ${margins.top})`)
     const svg2 = svg_original.append("svg")
     svg2.append("text")
     .attr("text-anchor", "middle")
-    .attr("x", width /2)
+    .attr("x", truewidth /2)
     .attr("y", trueheight - 20)
-    .text("TMBD Score");
+    .text("TMDb Popularity");
     svg2.append("text")
     .attr("text-anchor", "middle")
     
-    .attr("x", -height/2)
+    .attr("x", -trueheight/2)
     .attr("y", 20)
     .attr("transform", "rotate(-90)")
-    .text("IMDB Score");
+    .text("IMDb Score");
+    svg2.append("text")
+    .attr("text-anchor", "middle")
+    .attr("x", truewidth/2)
+    .attr("y", margins.top)
+    .text("TMDb popularity vs IMDb score")
     
-    const svg3 = svg_original.append("svg")
+    
 
 });
