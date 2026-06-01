@@ -1,3 +1,4 @@
+(function () {
 // set dimensions of graph
 const truewidth = 960;
 const trueheight = 600;
@@ -104,3 +105,4 @@ d3.csv("./titles.csv", d3.autoType).then(function(data){
     
 
 });
+})();
