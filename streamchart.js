@@ -3,7 +3,7 @@
 // set dimensions of graph
 const truewidth = 960;
 const trueheight = 600;
-const margins = {left : 60, bottom : 50, top: 20, right: 80}
+const margins = {left : 60, bottom : 50, top: 20, right: 140}
 const width = truewidth - margins.left - margins.right;
 const height = trueheight - margins.bottom - margins.top
 
@@ -47,6 +47,9 @@ d3.csv("./titles.csv", d3.autoType).then(function(data){
    const svg_original = d3.select("#stream-svg")
    .attr("width", truewidth)
    .attr("height", trueheight);
+
+  
+ 
    //create stream graph
    const streamGraph = svg_original.append("svg")
    .attr("width", truewidth)
@@ -78,9 +81,10 @@ d3.csv("./titles.csv", d3.autoType).then(function(data){
     .keys(["low", "medium", "high"])
     (finalData);
   // implements the streams for the stream chart
-    streamGraph.selectAll("mylayers")
+    streamGraph.selectAll(".layer")
     .data(stackedData)
     .join("path")
+    .attr("class", "layer")
     .style("fill", function(d) { return color(d.key);})
     .attr("d", d3.area()
     .x(function(d, i){return x(d.data.year);})
@@ -88,7 +92,7 @@ d3.csv("./titles.csv", d3.autoType).then(function(data){
     .y1(function(d){return y(d[1]);})
     )
 
-    console.log(finalData);
+   
     // create container to put the labels
     const labels = svg_original.append("svg")
     // add x axis label
@@ -104,14 +108,186 @@ d3.csv("./titles.csv", d3.autoType).then(function(data){
     .attr("x", -trueheight/2)
     .attr("y", 15)
     .attr("transform", "rotate(-90)")
-    .text("Movie Category Amount");
+    .text("Film Amount");
     //create regular title
     labels.append("text")
     .attr("text-anchor", "middle")
     .attr("x", truewidth/2)
     .attr("y", margins.top)
-    .text("Movie Quality Over the Years")
-    
+    .text("Content Quality Over the Years")
+    // create container for movie and show filters
+    let movie_only = {}
+    let show_only = {}
+     //create container to sort the data
+    for (let i = minYear; i<=maxYear; i++){
+        movie_only[i] = {year : i, low : 0, medium : 0, high : 0};
+        show_only[i] = {year : i, low : 0, medium : 0, high : 0};
+    }
+    //filter for movies and shows
+     for (let i = 0; i<data.length; i++){
+        curYear = data[i].release_year;
+        if (data[i].imdb_score == null){
+            continue;
+        }
+        if (data[i].type == "MOVIE"){
+        if (data[i].imdb_score < 6){
+            movie_only[curYear].low = movie_only[curYear].low + 1;
+        }
+        else if(data[i].imdb_score < 8){
+            movie_only[curYear].medium = movie_only[curYear].medium + 1;
 
+        }
+        else{
+            movie_only[curYear].high = movie_only[curYear].high + 1;
+        }
+    }
+    else if (data[i].type == "SHOW"){
+        if (data[i].imdb_score < 6){
+            show_only[curYear].low = show_only[curYear].low + 1;
+        }
+        else if(data[i].imdb_score < 8){
+            show_only[curYear].medium = show_only[curYear].medium + 1;
+
+        }
+        else{
+            show_only[curYear].high = show_only[curYear].high + 1;
+        }
+    }
+    }
+    //create final data array
+     let finalMovie = [];
+     let finalShow = [];
+   //transform the container into an array
+   for (let i = minYear; i <= maxYear; i++){
+    finalMovie.push(movie_only[i]);
+    finalShow.push(show_only[i]);
+   }
+   //create data stacks
+     const stackedMovie = d3.stack()
+    .offset(d3.stackOffsetSilhouette)
+    .keys(["low", "medium", "high"])
+    (finalMovie);
+      const stackedShow = d3.stack()
+    .offset(d3.stackOffsetSilhouette)
+    .keys(["low", "medium", "high"])
+    (finalShow);
+
+   
+   // create variables to be used in transitions
+    const options = ["Movies", "Shows", "Both"];
+    const dataStacks = [stackedMovie, stackedShow, stackedData]
+    let curState = 2;
+   //create container for buttons
+   const btnContainer = svg_original.append("foreignObject")
+  .attr("x", truewidth - margins.right + 40)  
+  .attr("y", trueheight/2 - margins.top -20)
+  .attr("width", 80)
+  .attr("height", 200);
+
+// create div for buttons ; this is the way i got it to work best without screwing up the chart placement
+const btnDiv = btnContainer.append("xhtml:div")
+  .style("display", "flex")
+  .style("flex-direction", "column")
+  .style("gap", "8px");
+
+  //add a button for each option
+btnDiv.selectAll("button")
+  .data(options)
+  .join("button")
+  .text(d => d)
+  .style("padding", "6px 12px")
+  .on("click", (event, d) => filterTheChart(d) );
+ 
+  //function for chart filtering
+  function filterTheChart(button){
+    //console.log(button);
+    // if new state is same, don't change
+    if (curState == options.indexOf(button)){
+        return;
+    }
+    else{
+        
+
+    curState = options.indexOf(button);
+    //transition to new graph state
+    streamGraph.selectAll(".layer")
+    
+    .data(dataStacks[curState])
+    .join("path")
+    .attr("class", "layer")
+    .transition()
+    .duration(800)
+    .style("fill", function(d) { return color(d.key);})
+    .attr("d", d3.area()
+    .x(function(d, i){return x(d.data.year);})
+    .y0(function(d){return y(d[0]);})
+    .y1(function(d){return y(d[1]);})
+    )
+        
+    }
+
+  }
+
+  // implements a color legend
+  const legend = svg_original.append("svg")
+  legend.append("circle")
+  .attr("cx", truewidth - margins.right + 30)      
+  .attr("cy", 30)      
+  .attr("r", 5)        
+  .style("fill", "blue"); 
+  legend.append("text")
+  .attr("x", truewidth - margins.right + 40)
+  .attr("y", 30)
+   .attr("text-anchor", "left")
+   .attr("dominant-baseline", "central")
+  .style("font-size", "10px")
+  .text("High Quality")
+   legend.append("text")
+  .attr("x", truewidth - margins.right + 40)
+  .attr("y", 40)
+   .attr("text-anchor", "left")
+   .attr("dominant-baseline", "central")
+  .style("font-size", "10px")
+  .text("Score >= 8")
+
+  legend.append("circle")
+  .attr("cx", truewidth - margins.right + 30)      
+  .attr("cy", 55)      
+  .attr("r", 5)        
+  .style("fill", "Purple"); 
+  legend.append("text")
+  .attr("x", truewidth - margins.right + 40)
+  .attr("y", 55)
+   .attr("text-anchor", "left")
+   .attr("dominant-baseline", "central")
+  .style("font-size", "10px")
+  .text("Medium Quality")
+   legend.append("text")
+  .attr("x", truewidth - margins.right + 40)
+  .attr("y", 65)
+   .attr("text-anchor", "left")
+   .attr("dominant-baseline", "central")
+  .style("font-size", "10px")
+  .text("8> Score >=6")
+
+  legend.append("circle")
+  .attr("cx", truewidth - margins.right + 30)      
+  .attr("cy", 80)      
+  .attr("r", 5)        
+  .style("fill", "red"); 
+  legend.append("text")
+  .attr("x", truewidth - margins.right + 40)
+  .attr("y", 80)
+   .attr("text-anchor", "left")
+   .attr("dominant-baseline", "central")
+  .style("font-size", "10px")
+  .text("Low Quality")
+   legend.append("text")
+  .attr("x", truewidth - margins.right + 40)
+  .attr("y", 90)
+   .attr("text-anchor", "left")
+   .attr("dominant-baseline", "central")
+  .style("font-size", "10px")
+  .text("Score <6")
 });
 })();
