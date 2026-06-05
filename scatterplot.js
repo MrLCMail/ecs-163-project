@@ -1,7 +1,9 @@
 (function () {
 // set dimensions of graph
-const truewidth = 960;
-const trueheight = 600;
+const windowWidth = window.innerWidth;
+const windowHeight = window.innerHeight;
+const truewidth = Math.min(960, windowWidth);
+const trueheight = Math.min(600, windowHeight);
 const margins = {left : 50, bottom : 50, top: 20, right: 20}
 const width = truewidth - margins.left - margins.right;
 const height = trueheight - margins.bottom - margins.top
