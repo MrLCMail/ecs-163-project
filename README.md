@@ -6,7 +6,7 @@ The linechart.js file contains the code for creating the line chart visualizatio
 
 The scatterplot.js file contains the code for creating the scatterplot visualization. The file includes code for filtering out null values, and then plots all the data points. This file also includes code to allow for d3 zooming functionality for the scatterplot
 
-The streamchart.js file contains the code for creating the streamchart visualization. The file includes code for filtering and binning the data to be used within the streamchart. Once the data is prepped, there is d3.js code that is used to create the visualization.
+The streamchart.js file contains the code for creating the streamchart visualization. The file includes code for filtering and binning the data to be used within the streamchart. Once the data is prepped, there is d3.js code that is used to create the visualization. The file also filters the data for just movies and just TV to be used in the filtered visualizations.
 
 
 ## Installation
