@@ -22,9 +22,10 @@ d3.csv("./titles.csv", d3.autoType).then(function(data){
     const xExtend = d3.extent(data_filtered, d=>d.tmdb_popularity);
     data_filtered.sort(function(a,b){return a.tmdb_popularity - b.tmdb_popularity});
     console.log(data_filtered);
+   
     // set x scale
     x = d3.scaleLinear()
-    .domain(xExtend)
+    .domain([-100, xExtend[1]])
     .range([0, width]);
     //set y scale
     y = d3.scaleLinear()
