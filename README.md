@@ -14,7 +14,7 @@ To install the repository, click the code button and download as zip. Once downl
 
 
 ## Execution
-To run the code, open the folder in VS studio, right click on the index.html file, and click open with live server. Once on the browser page, make sure to fullscreen it, and potentially refresh the page if for some the graphics did not load correctly at launch.
+VScode and the Live Server package are required to run the code. To run the code, open the folder in Visual Studio Code, right click on the index.html file, and click open with live server. Once on the browser page, make sure to fullscreen it, and potentially refresh the page if for some the graphics did not load correctly at launch.
 
 ## Datasets:
 Netflix Users: https://www.kaggle.com/datasets/sureshmuthusamy001p/netflix-customer-subscription
